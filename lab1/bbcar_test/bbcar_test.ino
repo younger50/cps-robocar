@@ -29,20 +29,22 @@
 
 int sPinR = A0;   // sensor R input
 int sPinL = A1;   // sensor L input
-int tPin = A5;   // sensor threshold pin
-int mPinR = 10;
-int mPinL = 11;
+int tPinR = A4;   // sensor R threshold 
+int tPinL = A5;   // sensor L threshold 
+int mPinR = 10;   // motor R pin
+int mPinL = 11;   // motor L pin
 int sValueR = 0;   // sensor value R
 int sValueL = 0;   // sensor value L
-int tValue = 0;
+int tValueR = 0;
+int tValueL = 0;
 unsigned long msR = 0;    // timer of right servo
 int statR = 0;   // stat (0 in LOW, 1 in HIGH, 2 in speed delay control)
 unsigned long tRH = 1400;   // timer thresthhold of right servo PWM HIGH signal (us)
-unsigned long tRL = 40000;   // timer thresthhold of right servo PWM LOW signal (us)
+unsigned long tRL = 60000;   // timer thresthhold of right servo PWM LOW signal (us)
 unsigned long msL = 0;
 int statL = 0;
 unsigned long tLH = 1600;
-unsigned long tLL = 40000;
+unsigned long tLL = 60000;
 
 void setup() {
   // declare the ledPin as an OUTPUT:
@@ -57,7 +59,8 @@ void loop() {
   // read the value from the sensor:
   sValueR = analogRead(sPinR);
   sValueL = analogRead(sPinL);
-  tValue = analogRead(tPin);
+  tValueR = analogRead(tPinR);
+  tValueL = analogRead(tPinL);
   //led_diplay(sValueR>>1, sValueR>>2, sValueR>>3, sValueR>>4);
   //Serial.println(sValueR);
   unsigned long time = micros();
@@ -66,7 +69,7 @@ void loop() {
     msR = time;
     statR = 0;
   }
-  if ( time - msR > tRL && statR == 0 && sValueR > tValue) {
+  if ( time - msR > tRL && statR == 0 && sValueR > tValueR) {
     digitalWrite(mPinR, HIGH);
     msR = time;
     statR = 1;
@@ -76,7 +79,7 @@ void loop() {
     msL = time;
     statL = 0;
   }
-  if ( time - msL > tLL && statL == 0 && sValueL > tValue) {
+  if ( time - msL > tLL && statL == 0 && sValueL > tValueL) {
     digitalWrite(mPinL, HIGH);
     msL = time;
     statL = 1;
