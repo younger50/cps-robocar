@@ -31,8 +31,8 @@ int sPinR = A0;
 int sPinL = A1;
 int mPinR = 10;
 int mPinL = 11;
-int sValueR = 0;
-int sValueL = 0;
+int sValueR = 0;   // sensor value R
+int sValueL = 0;   // sensor value L
 int msR = 0;    // timer of right servo
 int statR = 0;   // stat (0 in LOW, 1 inHIGH)
 int tRH = 1300;   // timer thresthhold of right servo PWM HIGH signal
@@ -62,7 +62,7 @@ void loop() {
     msR = time;
     statR = 0;
   }
-  if ( time - msR > tRL && statR == 0 && sValueR > 100) {
+  if ( time - msR > tRL && statR == 0 && sValueR > 500) {
     digitalWrite(mPinR, HIGH);
     msR = time;
     statR = 1;
@@ -72,7 +72,7 @@ void loop() {
     msL = time;
     statL = 0;
   }
-  if ( time - msL > tLL && statL == 0 && sValueL > 100) {
+  if ( time - msL > tLL && statL == 0 && sValueL > 500) {
     digitalWrite(mPinL, HIGH);
     msL = time;
     statL = 1;
