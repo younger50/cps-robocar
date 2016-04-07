@@ -39,11 +39,11 @@ int tValueR = 0;
 int tValueL = 0;
 unsigned long msR = 0;    // timer of right servo
 int statR = 0;   // stat (0 in LOW, 1 in HIGH, 2 in speed delay control)
-unsigned long tRH = 1400;   // timer thresthhold of right servo PWM HIGH signal (us)
+unsigned long tRH = 1300;   // timer thresthhold of right servo PWM HIGH signal (us)
 unsigned long tRL = 60000;   // timer thresthhold of right servo PWM LOW signal (us)
 unsigned long msL = 0;
 int statL = 0;
-unsigned long tLH = 1600;
+unsigned long tLH = 1700;
 unsigned long tLL = 60000;
 
 void setup() {
@@ -52,7 +52,7 @@ void setup() {
   pinMode(mPinL, OUTPUT);
   digitalWrite(mPinR, LOW);
   digitalWrite(mPinR, LOW);
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -62,29 +62,22 @@ void loop() {
   tValueR = analogRead(tPinR);
   tValueL = analogRead(tPinL);
   //led_diplay(sValueR>>1, sValueR>>2, sValueR>>3, sValueR>>4);
-  //Serial.println(sValueR);
+  Serial.print("R: ");
+  Serial.print(sValueR);
+  Serial.print(" L:");
+  Serial.println(sValueL);
   unsigned long time = micros();
-  if ( time - msR > tRH && statR == 1) {
-    digitalWrite(mPinR, LOW);
-    msR = time;
-    statR = 0;
-  }
-  if ( time - msR > tRL && statR == 0 && sValueR > tValueR) {
+  if ( sValueR > tValueR || ( sValueR < tValueR && sValueL < tValueL ) ) {
     digitalWrite(mPinR, HIGH);
-    msR = time;
-    statR = 1;
+    delayMicroseconds(tRH);
+    digitalWrite(mPinR, LOW);
   }
-  if ( time - msL > tLH && statL == 1) {
-    digitalWrite(mPinL, LOW);
-    msL = time;
-    statL = 0;
-  }
-  if ( time - msL > tLL && statL == 0 && sValueL > tValueL) {
+  if ( sValueL > tValueL || ( sValueR < tValueR && sValueL < tValueL ) ) {
     digitalWrite(mPinL, HIGH);
-    msL = time;
-    statL = 1;
+    delayMicroseconds(tLH);
+    digitalWrite(mPinL, LOW);
   }
-  delayMicroseconds(10);
+  delayMicroseconds(tLL);
 }
 
 int led_diplay(int v1, int v2, int v3, int v4) {
