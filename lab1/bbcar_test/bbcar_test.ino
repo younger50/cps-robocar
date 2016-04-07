@@ -55,7 +55,7 @@ void loop() {
     msR = time;
     statR = 0;
   }
-  if ( time - msR > tRL && statR == 0 && carcmd!=1 ) {
+  if ( time - msR > tRL && statR == 0 && carcmd==2 ) {
     digitalWrite(mPinR, HIGH);
     msR = time;
     statR = 1;
@@ -65,7 +65,7 @@ void loop() {
     msL = time;
     statL = 0;
   }
-  if ( time - msL > tLL && statL == 0 && carcmd!=2 ) {
+  if ( time - msL > tLL && statL == 0 && carcmd==1 ) {
     digitalWrite(mPinL, HIGH);
     msL = time;
     statL = 1;
