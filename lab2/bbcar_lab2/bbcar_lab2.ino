@@ -41,7 +41,7 @@ unsigned long tLL = 60000;
 unsigned long tLLUB = 80000; // upper bound, slowest speed
 unsigned long tLLLB = 40000; // lower bound, faster speed
 
-unsigned long tSStep = 200; // speed step of delay time
+unsigned long tSStep = 2000; // speed step of delay time
 
 void setup() {
   // declare the ledPin as an OUTPUT:
@@ -92,13 +92,17 @@ void loop() {
   Serial.print(" State: ");
   Serial.println( carcmd);
   // Speed control
-  if(sAvgF > 250){
+  if(sAvgF > 300){
       tRL = tRLUB;
       tLL = tLLUB;
   }
-  else if(sAvgF < 100){
+  else if(sAvgF < 50){
       tRL = tRLLB;
       tLL = tLLLB;
+  }
+  else if(sAvgF > 250 && tRL < tRLUB){
+      tRL += tSStep;
+      tLL += tSStep;
   }
   else if(sAvgF < 200 && tRL > tRLLB){
       tRL -= tSStep;
