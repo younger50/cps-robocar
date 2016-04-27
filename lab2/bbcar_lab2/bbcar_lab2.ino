@@ -4,6 +4,8 @@ lab 1
 */
 
 int carcmd = 0;   // 0:forward 1:right 2:left 3:hard right 4:hard left
+int hardturn = 0; // hard turn delay fitting: will do small turn n time after hard turn
+
 int sPinR = A0;   // sensor R input
 int sPinL = A1;   // sensor L input
 int sPinF = A2;   // sensor Front input
@@ -27,14 +29,14 @@ float sSmpF = 3;
 
 unsigned long msR = 0;    // timer of right servo
 int statR = 0;   // stat (0 in LOW, 1 in HIGH, 2 in speed delay control)
-unsigned long tRH = 1350;   // timer thresthhold of right servo PWM HIGH signal (us)
+unsigned long tRH = 1400;   // timer thresthhold of right servo PWM HIGH signal (us)
 unsigned long tRL = 60000;   // timer thresthhold of right servo PWM LOW signal (us)
 unsigned long tRLUB = 80000; // upper bound, slowest speed
 unsigned long tRLLB = 40000; // lower bound, faster speed
 
 unsigned long msL = 0;
 int statL = 0;
-unsigned long tLH = 1650;
+unsigned long tLH = 1600;
 unsigned long tLL = 60000;
 unsigned long tLLUB = 80000; // upper bound, slowest speed
 unsigned long tLLLB = 40000; // lower bound, faster speed
@@ -98,7 +100,7 @@ void loop() {
       tRL = tRLLB;
       tLL = tLLLB;
   }
-  else if(sAvgF < 200){
+  else if(sAvgF < 200 && tRL > tRLLB){
       tRL -= tSStep;
       tLL -= tSStep;
   }
@@ -107,29 +109,36 @@ void loop() {
   // Right turn
   if( sAvgR < 420){
     carcmd = 1;
+    hardturn = 0;
   }
   // Right Hard 
   if( sAvgR > 550){
     carcmd = 3;
+    hardturn = 7;
   }
   // Left turn
   else if( sAvgL < 400){
     carcmd = 2;
+    hardturn = 0;
   }
   // Left Hard
   else if( sAvgL > 530){
     carcmd = 4;
+    hardturn = 7;
   }
   // Continue turn if no threshold met
-//  else if( carcmd==3){
-//    carcmd = 1;
-//  }
-//  else if( carcmd==4){
-//    carcmd = 2;
-//  }
+  else if( (carcmd == 3 || carcmd == 1) && hardturn > 0 ){
+    carcmd = 1;
+    hardturn--;
+  }
+  else if( (carcmd == 4 || carcmd == 2) && hardturn > 0 ){
+    carcmd = 2;
+    hardturn--;
+  }
   // Forward
   else{
     carcmd = 0;
+    hardturn = 0;
   }
   //timer
   unsigned long time = micros();
