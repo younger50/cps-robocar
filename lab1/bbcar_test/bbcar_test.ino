@@ -3,7 +3,7 @@ bbcar test
 lab 1
 */
 
-int carcmd = 0;   // 0:forward 1:right 2:left
+int carcmd = 0;   // 0:forward 1:right 2:left 3:hard right 4:hard left
 int sPinR = A0;   // sensor R input
 int sPinL = A1;   // sensor L input
 int sPinF = A2;   // sensor Front input
@@ -18,11 +18,11 @@ int tValueR = 0;
 int tValueL = 0;
 unsigned long msR = 0;    // timer of right servo
 int statR = 0;   // stat (0 in LOW, 1 in HIGH, 2 in speed delay control)
-unsigned long tRH = 1400;   // timer thresthhold of right servo PWM HIGH signal (us)
+unsigned long tRH = 1350;   // timer thresthhold of right servo PWM HIGH signal (us)
 unsigned long tRL = 60000;   // timer thresthhold of right servo PWM LOW signal (us)
 unsigned long msL = 0;
 int statL = 0;
-unsigned long tLH = 1600;
+unsigned long tLH = 1650;
 unsigned long tLL = 60000;
 
 //average sensor value
@@ -72,25 +72,48 @@ void loop() {
   Serial.print(sAvgR);
   Serial.print(" LA: ");
   Serial.print(sAvgL);
-  Serial.println(" ");
+  Serial.print(" State: ");
+  Serial.println( carcmd);
   //timer
   unsigned long time = micros();
-  if( sValueR > tValueR && sValueL < tValueL){
+  // Right turn
+  if( sAvgR < 420){
     carcmd = 1;
   }
-  else if( sValueR < tValueR && sValueL > tValueL){
+  // Right Hard 
+  else if( sAvgR > 500){
+    carcmd = 3;
+  }
+  // Left turn
+  else if( sAvgL < 400){
+    carcmd = 2;
+  }
+  // Left Hard
+  else if( sAvgL > 480){
+    carcmd = 4;
+  }
+  else if( carcmd==3 || carcmd==1){
+    carcmd = 1;
+  }
+  else if( carcmd==4 || carcmd==2){
     carcmd = 2;
   }
   else{
     carcmd = 0;
   }
+  // Forward
   if ( time - msR > tRH && statR == 1) {
     msR = time;
     statR = 0;
   }
   if ( time - msR > tRL && statR == 0 && carcmd!=1 ) {
     digitalWrite(mPinR, HIGH);
-    delayMicroseconds(tRH);
+    if( carcmd==3){
+      delayMicroseconds(tLH);
+    }
+    else{
+      delayMicroseconds(tRH);
+    }
     digitalWrite(mPinR, LOW);
     msR = time;
     statR = 1;
@@ -99,13 +122,18 @@ void loop() {
     msL = time;
     statL = 0;
   }
-  if ( time - msL > tLL && statL == 0 && carcmd!=2 ) {
+  if ( time - msL > tLL && statL == 0 && carcmd!=2 && carcmd!=4 ) {
     digitalWrite(mPinL, HIGH);
-    delayMicroseconds(tLH);
+    if( carcmd==4){
+      delayMicroseconds(tRH);
+    }
+    else{
+      delayMicroseconds(tLH);
+    }
     digitalWrite(mPinL, LOW);
     msL = time;
     statL = 1;
   }
-  delayMicroseconds(10);
+  delayMicroseconds(100);
 }
 
