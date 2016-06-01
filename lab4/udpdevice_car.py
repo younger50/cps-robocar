@@ -18,23 +18,40 @@ class Car(WuClass):
         self.motor2 = mraa.Pwm(5)
         self.motor1.period_us(3000)
         self.motor2.period_us(3000)
-        self.motor1.pulsewidth_us(1400)
-        self.motor2.pulsewidth_us(1600)
+        self.motor1.pulsewidth_us(1300)
+        self.motor2.pulsewidth_us(1700)
         self.motor1.enable(False)
         self.motor2.enable(False)
-        print "init"
+        
 
     def checkCross(self):
         IR1 = analog_read(self.IR1_aio)
         IR2 = analog_read(self.IR2_aio)
         print "IR1: ", IR1, ", IR2: ", IR2
-        return (IR1>500)and(IR2>500)
-
+        return (IR1>550)and(IR2>450)
+    
     def GO(self):
-        self.motor1.enable(True)
-        self.motor2.enable(True)
         print "GO"
-
+        # check turn
+        IR1 = analog_read(self.IR1_aio)
+        IR2 = analog_read(self.IR2_aio)
+        #print "IR1: ", IR1, ", IR2: ", IR2
+        if (IR1>550):
+            # Right in Black, turn right
+            print "R"
+            self.motor1.enable(False)
+            self.motor2.enable(True)
+        elif (IR2>450):
+            # Left in Black, turn left
+            print "L"
+            self.motor1.enable(True)
+            self.motor2.enable(False)
+        else :
+            # Go straight
+            print "F"
+            self.motor1.enable(True)
+            self.motor2.enable(True)
+        
     def STOP(self):
         self.motor1.enable(False)
         self.motor2.enable(False)
@@ -42,21 +59,21 @@ class Car(WuClass):
     
     def setup(self, obj):
         print "refresh setup"
-        reactor.callLater(0.5, self.refresh, obj)
+        reactor.callLater(0.1, self.refresh, obj)
         
     def refresh(self, obj):
         print "refresh"
-	self.update( obj, 2, 1)
-        reactor.callLater(0.5, self.refresh, obj)
+        self.update( obj, 2, 1)
+        reactor.callLater(0.1, self.refresh, obj)
     
     def update(self,obj,pID=None,val=None):
         print "update"
-	print "pID: " + str(pID)+" val: " + str(val)
+        print "pID: " + str(pID)+" val: " + str(val)
         try:
             if pID == 2:
                 self.permission = val
-            onCross = self.checkCross()
-            obj.setProperty(1, onCross)
+                onCross = self.checkCross()
+                obj.setProperty(1, onCross)
             if self.permission or not onCross:
                 self.GO()
             else:
