@@ -21,45 +21,35 @@ class Traffic(WuClass):
         self.permissionChanges = [True, False]
         self.period = 90
 
+    def setup(self, obj):
+        print "refresh setup"
+        reactor.callLater(1, self.refresh, obj)
+        
+    def refresh(self, obj):
+        print "refresh"
+        print "Time: " + str(self.timeCount)
+        changed = False
+        self.timeCount += 1
+        if self.timeCount in self.mainTime:
+            self.mainLight = self.lights[self.mainChanges[self.mainTime.index(self.timeCount)]]
+            changed = True
+        if self.timeCount in self.secondaryTime:
+            index = self.secondaryTime.index(self.timeCount)
+            self.secondaryLight = self.lights[self.secondaryChanges[index]]
+            obj.setProperty(0, self.permissionChanges[index])
+            changed = True
+        if changed:
+            print "main: " + self.mainLight + ", sub: " + self.secondaryLight
+        if self.timeCount == self.period:
+            self.timeCount = 0
+        reactor.callLater(1, self.refresh, obj)
+
     def update(self,obj,pID=None,val=None):
         try:
             if pID == 1 and val == True:
                 print "Requested"
                 self.timeCount = 59
-
-	    print "Time: " + str(self.timeCount)
-            changed = False
-            self.timeCount += 1
-
-            if self.timeCount in self.mainTime:
-                self.mainLight = self.lights[self.mainChanges[self.mainTime.index(self.timeCount)]]
-                changed = True
-            if self.timeCount in self.secondaryTime:
-                index = self.secondaryTime.index(self.timeCount)
-                self.secondaryLight = self.lights[self.secondaryChanges[index]]
-                obj.setProperty(0, self.permissionChanges[index])
-                changed = True
-
-            if changed:
-                print "main: " + self.mainLight + ", sub: " + self.secondaryLight
-              
-            if self.timeCount == self.period:
-                self.timeCount = 0
-            """
-            now = time.time()
-            if pID == 1 and val == True:
-                print "Got Request!!"
-                self.startTime = now - 6
-            if now - self.startTime < 6:
-                print "main: green, sub: red"
-                obj.setProperty(0, False)
-            else:
-                print "main: red, sub: green"
-                obj.setProperty(0, True)
-            if now - self.startTime > 9:
-               self.startTime += (int(now - self.startTime) /9)*9
-            """
-
+                
         except IOError:
             print "Error"
 
@@ -71,7 +61,8 @@ if __name__ == "__main__":
         def init(self):
             m = Traffic()
             self.addClass(m,0)
-            self.addObject(m.ID)
+            self.objtraffic = self.addObject(m.ID)
+            m.setup( self.objtraffic)
 
     if len(sys.argv) <= 2:
         print 'python udpwkpf.py <ip> <port>'
