@@ -77,25 +77,7 @@ void loop() {
   Serial.print(" FA: ");
   Serial.print(sAvgF);
   Serial.print(" State: ");
-  Serial.println( carcmd);
-//  // Speed control
-//  if(sAvgF > 300){
-//      tRL = tRLUB;
-//      tLL = tLLUB;
-//  }
-//  else if(sAvgF < 50){
-//      tRL = tRLLB;
-//      tLL = tLLLB;
-//  }
-//  else if(sAvgF > 250 && tRL < tRLUB){
-//      tRL += tSStep;
-//      tLL += tSStep;
-//  }
-//  else if(sAvgF < 200 && tRL > tRLLB){
-//      tRL -= tSStep;
-//      tLL -= tSStep;
-//  }
-  
+  Serial.println( carcmd);  
   // Turning state machine
   // stop
   if( sAvgF > 300){
@@ -109,6 +91,10 @@ void loop() {
   else if( (carcmd == 4 || carcmd == 2) && hardturn > 0 ){
     carcmd = 2;
     hardturn--;
+  }
+  else if ( sAvgR > 500 && sAvgL > 500){
+    carcmd = 0;
+    hardturn = 0;  
   }
   // Right turn
   else if( sAvgR < 450){
@@ -168,37 +154,6 @@ void loop() {
     digitalWrite(mPinR, LOW);
     digitalWrite(mPinL, LOW);
   }
-//  //timer
-//  unsigned long time = micros();
-//  //motor signal control
-//  if ( time - msR > tRL && statR == 0 && carcmd!=1 && carcmd!=3 && carcmd!=5 ) {
-//    digitalWrite(mPinR, HIGH);
-//    if( carcmd==3){
-//      delayMicroseconds(tLH);
-//    }
-//    else{
-//      delayMicroseconds(tRH);
-//    }
-//    digitalWrite(mPinR, LOW);
-//    msR = time;
-//    statR = 1;
-//  }
-//  if ( time - msL > tLH && statL == 1) {
-//    msL = time;
-//    statL = 0;
-//  }
-//  if ( time - msL > tLL && statL == 0 && carcmd!=2 && carcmd!=4 && carcmd!=5 ) {
-//    digitalWrite(mPinL, HIGH);
-//    if( carcmd==4){
-//      delayMicroseconds(tRH);
-//    }
-//    else{
-//      delayMicroseconds(tLH);
-//    }
-//    digitalWrite(mPinL, LOW);
-//    msL = time;
-//    statL = 1;
-//  }
   delayMicroseconds(40000);
 }
 

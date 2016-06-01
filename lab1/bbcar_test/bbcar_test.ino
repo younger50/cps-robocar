@@ -106,7 +106,7 @@ void loop() {
     msR = time;
     statR = 0;
   }
-  if ( time - msR > tRL && statR == 0 && carcmd!=1 ) {
+  if ( time - msR > tRL && statR == 0 && carcmd!=1 && carcmd!=3 ) {
     digitalWrite(mPinR, HIGH);
     if( carcmd==3){
       delayMicroseconds(tLH);
