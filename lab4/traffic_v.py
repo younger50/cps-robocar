@@ -20,6 +20,7 @@ class Traffic(WuClass):
         self.secondaryChanges = [1, 0]
         self.permissionChanges = [True, False]
         self.period = 90
+        self.given = False
 
     def setup(self, obj):
         print "refresh setup"
@@ -37,6 +38,7 @@ class Traffic(WuClass):
             index = self.secondaryTime.index(self.timeCount)
             self.secondaryLight = self.lights[self.secondaryChanges[index]]
             obj.setProperty(0, self.permissionChanges[index])
+            self.given = self.permissionChanges[index]
             changed = True
         if changed:
             print "main: " + self.mainLight + ", sub: " + self.secondaryLight
@@ -48,7 +50,8 @@ class Traffic(WuClass):
         try:
             if pID == 1 and val == True:
                 print "Requested"
-                self.timeCount = 59
+                if not self.given:
+                    self.timeCount = 59
                 
         except IOError:
             print "Error"

@@ -28,7 +28,7 @@ class Car(WuClass):
         IR1 = analog_read(self.IR1_aio)
         IR2 = analog_read(self.IR2_aio)
         print "IR1: ", IR1, ", IR2: ", IR2
-        return (IR1>500)and(IR2>450)
+        return (IR1>500)and(IR2>460)
     
     def GO(self):
         print "GO"
@@ -36,12 +36,17 @@ class Car(WuClass):
         IR1 = analog_read(self.IR1_aio)
         IR2 = analog_read(self.IR2_aio)
         #print "IR1: ", IR1, ", IR2: ", IR2
+        if (IR1>500)and(IR2>460):
+            # Forward
+            print "F"
+            self.motor1.enable(True)
+            self.motor2.enable(True)
         if (IR1>500):
             # Right in Black, turn right
             print "R"
             self.motor1.enable(False)
             self.motor2.enable(True)
-        elif (IR2>450):
+        elif (IR2>460):
             # Left in Black, turn left
             print "L"
             self.motor1.enable(True)
@@ -59,22 +64,25 @@ class Car(WuClass):
     
     def setup(self, obj):
         print "refresh setup"
-        reactor.callLater(1, self.refresh, obj)
+        reactor.callLater(0.1, self.refresh, obj)
         
     def refresh(self, obj):
-        print "refresh"
+        #print "refresh"
         self.update( obj, 3, 0) #3 for internal call
-        reactor.callLater(1, self.refresh, obj)
+        reactor.callLater(0.1, self.refresh, obj)
     
     def update(self,obj,pID=None,val=None):
-        print "update"
-        print "pID: " + str(pID)+" val: " + str(val)
+        if pID != 3:
+            print "update"
+            print "pID: " + str(pID)+" val: " + str(val)
         try:
             if pID == 0:
                 self.permission = val
                 print "Get permission"
             onCross = self.checkCross()
             obj.setProperty(1, onCross)
+            if onCross:
+                print "On Cross"
             if self.permission or not onCross:
                 self.GO()
             else:
